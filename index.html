@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Game Radar — تتبّع الألعاب القادمة</title>
+<meta name="description" content="عدّاد تنازلي مباشر لأهم الألعاب القادمة: GTA VI وغيرها.">
+<style>
+  :root{
+    --bg:#0b0f17;--bg2:#121826;--card:#161d2e;--accent:#7c5cff;--accent2:#19c37d;
+    --text:#eef1f7;--muted:#8b94a7;--line:#222b40;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:"Segoe UI","Tahoma",system-ui,sans-serif;
+    background:radial-gradient(1200px 600px at 80% -10%,#1b2440 0,transparent 60%),
+               radial-gradient(900px 500px at 0% 0%,#241a3d 0,transparent 55%),var(--bg);
+    color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased;
+  }
+  header{text-align:center;padding:56px 20px 24px}
+  .logo{display:inline-flex;align-items:center;gap:10px;font-size:14px;color:var(--muted);letter-spacing:2px;margin-bottom:16px;text-transform:uppercase}
+  .dot{width:9px;height:9px;border-radius:50%;background:var(--accent2);box-shadow:0 0 12px var(--accent2);animation:pulse 1.6s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+  h1{font-size:clamp(30px,6vw,52px);font-weight:800;line-height:1.15;margin-bottom:14px}
+  h1 span{background:linear-gradient(90deg,var(--accent),#c9a4ff);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .sub{color:var(--muted);font-size:17px;max-width:560px;margin:0 auto}
+
+  .toolbar{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;padding:22px 20px 0}
+  .chip{background:var(--card);border:1px solid var(--line);color:var(--muted);padding:9px 18px;border-radius:999px;cursor:pointer;font-size:14px;transition:.2s;font-family:inherit}
+  .chip:hover{color:var(--text);border-color:var(--accent)}
+  .chip.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .status{text-align:center;color:var(--muted);font-size:13px;padding:14px 20px 0;min-height:20px}
+  .status b{color:var(--accent2)}
+
+  .grid{display:grid;gap:22px;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));max-width:1200px;margin:30px auto;padding:0 20px 80px}
+  .card{background:linear-gradient(180deg,var(--card),var(--bg2));border:1px solid var(--line);border-radius:18px;overflow:hidden;transition:.25s;position:relative;display:flex;flex-direction:column}
+  .card:hover{transform:translateY(-4px);border-color:var(--accent);box-shadow:0 20px 50px rgba(0,0,0,.45)}
+  .cover{height:170px;display:flex;align-items:center;justify-content:center;font-size:40px;font-weight:800;position:relative;overflow:hidden;background-size:cover;background-position:center}
+  .cover::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 40%,rgba(11,15,23,.85))}
+  .cover .ph{position:relative;z-index:1;text-shadow:0 2px 20px rgba(0,0,0,.6);opacity:.95;padding:0 12px;text-align:center}
+  .badge{position:absolute;top:12px;inset-inline-start:12px;z-index:2;background:rgba(124,92,255,.95);color:#fff;font-size:11px;font-weight:700;padding:4px 10px;border-radius:6px}
+  .body{padding:18px;display:flex;flex-direction:column;flex:1}
+  .platforms{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+  .tag{font-size:11px;background:#0e1422;border:1px solid var(--line);color:var(--muted);padding:3px 9px;border-radius:6px}
+  .name{font-size:21px;font-weight:700;margin-bottom:4px}
+  .date{color:var(--muted);font-size:14px;margin-bottom:14px}
+  .countdown{display:flex;gap:8px;text-align:center;margin-bottom:14px}
+  .unit{flex:1;background:#0d1320;border:1px solid var(--line);border-radius:10px;padding:10px 4px}
+  .unit b{display:block;font-size:23px;font-weight:800}
+  .unit small{color:var(--muted);font-size:11px}
+  .released{background:linear-gradient(90deg,var(--accent2),#0f9c63);color:#031a10;text-align:center;font-weight:800;padding:13px;border-radius:10px;font-size:15px;margin-bottom:14px}
+  .tba{background:#0d1320;color:var(--muted);border:1px solid var(--line);text-align:center;padding:13px;border-radius:10px;font-size:14px;margin-bottom:14px}
+  .actions{display:flex;gap:8px;margin-top:auto}
+  .btn{flex:1;border:1px solid var(--line);background:#0e1422;color:var(--text);padding:10px;border-radius:10px;cursor:pointer;font-size:13px;font-family:inherit;transition:.2s;display:flex;align-items:center;justify-content:center;gap:6px}
+  .btn:hover{border-color:var(--accent);background:#141c30}
+  .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+  .btn.primary:hover{filter:brightness(1.1)}
+
+  .keybar{max-width:1200px;margin:0 auto;padding:0 20px;display:flex;justify-content:center}
+  .keybox{background:var(--card);border:1px dashed var(--line);border-radius:12px;padding:12px 16px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:13px;color:var(--muted)}
+  .keybox input{background:#0d1320;border:1px solid var(--line);color:var(--text);padding:8px 12px;border-radius:8px;font-family:inherit;width:230px}
+  .keybox a{color:var(--accent);text-decoration:none}
+  .keybox button{background:var(--accent2);border:0;color:#031a10;font-weight:700;padding:8px 14px;border-radius:8px;cursor:pointer;font-family:inherit}
+  footer{text-align:center;color:var(--muted);font-size:13px;padding:0 20px 50px}
+</style>
+</head>
+<body>
+  <header>
+    <div class="logo"><span class="dot"></span> GAME RADAR</div>
+    <h1>تتبّع <span>الألعاب القادمة</span></h1>
+    <p class="sub">عدّاد تنازلي مباشر، صور رسمية، وتذكير بالتقويم — لا يفوتك أي إصدار.</p>
+  </header>
+
+  <div class="keybar">
+    <div class="keybox">
+      <span>🔑 لتحديث الصور والتواريخ تلقائيًا الصق مفتاح RAWG المجاني:</span>
+      <input id="keyInput" placeholder="RAWG API key (اختياري)" />
+      <button onclick="saveKey()">حفظ وتحديث</button>
+      <a href="https://rawg.io/apidocs" target="_blank" rel="noopener">احصل على مفتاح مجاني ←</a>
+    </div>
+  </div>
+
+  <div class="toolbar" id="filters"></div>
+  <div class="status" id="status"></div>
+  <div class="grid" id="grid"></div>
+
+  <footer>التواريخ تقريبية وتُحدّث تلقائيًا عند توفّر مفتاح RAWG · صُنع بـ ❤️ Game Radar</footer>
+
+<script>
+/* ====== عدّل الألعاب من هنا ======
+   slug: معرّف اللعبة في RAWG (لجلب الصورة والتاريخ تلقائيًا) */
+const GAMES = [
+  { name:"Grand Theft Auto VI", short:"GTA VI", slug:"grand-theft-auto-vi", date:"2026-11-19", platforms:["PS5","Xbox Series"], color:["#ff7eb3","#7c5cff"], tag:"عالم مفتوح", img:"" },
+  { name:"The Elder Scrolls VI", short:"TES VI", slug:"the-elder-scrolls-vi", date:"TBA", platforms:["PC","Xbox"], color:["#3a7bd5","#00d2ff"], tag:"RPG", img:"" },
+  { name:"Fable", short:"Fable", slug:"fable-2025", date:"2026-09-15", platforms:["PC","Xbox Series"], color:["#11998e","#38ef7d"], tag:"مغامرة", img:"" },
+  { name:"Metroid Prime 4: Beyond", short:"Metroid Prime 4", slug:"metroid-prime-4", date:"2026-03-20", platforms:["Switch 2"], color:["#f7971e","#ffd200"], tag:"أكشن", img:"" },
+  { name:"Death Stranding 2", short:"Death Stranding 2", slug:"death-stranding-2-on-the-beach", date:"2026-06-26", platforms:["PS5"], color:["#283c86","#45a247"], tag:"مغامرة", img:"" },
+  { name:"Marvel's Wolverine", short:"Wolverine", slug:"marvels-wolverine", date:"2026-10-01", platforms:["PS5"], color:["#cb2d3e","#ef473a"], tag:"أكشن", img:"" },
+  { name:"Ghost of Yotei", short:"Ghost of Yotei", slug:"ghost-of-yotei", date:"2025-10-02", platforms:["PS5"], color:["#834d9b","#d04ed6"], tag:"عالم مفتوح", img:"" },
+  { name:"Hollow Knight: Silksong", short:"Silksong", slug:"hollow-knight-silksong", date:"2025-09-04", platforms:["PC","Switch","PS5","Xbox"], color:["#1d976c","#93f9b9"], tag:"ميترويدفانيا", img:"" },
+];
+
+const grid=document.getElementById('grid');
+const filters=document.getElementById('filters');
+const statusEl=document.getElementById('status');
+let RAWG_KEY=localStorage.getItem('rawg_key')||"";
+
+function parse(d){return d==="TBA"?null:new Date(d+"T00:00:00")}
+function pad(n){return String(n).padStart(2,'0')}
+
+/* ===== تذكير بالتقويم ===== */
+function gcalLink(g){
+  const d=parse(g.date); if(!d) return "#";
+  const s=d.toISOString().replace(/[-:]/g,'').split('.')[0]+"Z";
+  const e=new Date(d.getTime()+2*36e5).toISOString().replace(/[-:]/g,'').split('.')[0]+"Z";
+  const text=encodeURIComponent("إصدار "+g.name);
+  const det=encodeURIComponent("تذكير بإصدار اللعبة — Game Radar");
+  return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${text}&dates=${s}/${e}&details=${det}`;
+}
+function downloadICS(g){
+  const d=parse(g.date); if(!d) return;
+  const dt=d.getFullYear()+pad(d.getMonth()+1)+pad(d.getDate());
+  const ics=["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//GameRadar//AR//","BEGIN:VEVENT",
+    "UID:"+g.slug+"@gameradar","DTSTART;VALUE=DATE:"+dt,"SUMMARY:إصدار "+g.name,
+    "DESCRIPTION:تذكير بإصدار اللعبة — Game Radar","END:VEVENT","END:VCALENDAR"].join("\r\n");
+  const a=document.createElement('a');
+  a.href="data:text/calendar;charset=utf-8,"+encodeURIComponent(ics);
+  a.download=g.name.replace(/[^\w]+/g,"_")+".ics"; a.click();
+}
+
+/* ===== بناء البطاقات ===== */
+function buildCards(filter){
+  grid.innerHTML="";
+  GAMES.filter(g=>filter==="all"||g.platforms.some(p=>p.includes(filter))).forEach((g,idx)=>{
+    const i=GAMES.indexOf(g);
+    const cover=g.img
+      ?`background-image:url('${g.img}')`
+      :`background:linear-gradient(135deg,${g.color[0]},${g.color[1]})`;
+    const el=document.createElement('div');
+    el.className='card';
+    el.innerHTML=`
+      <div class="cover" style="${cover}">
+        ${!g.img?`<div class="ph">${g.short}</div>`:""}
+        <div class="badge">${g.tag}</div>
+      </div>
+      <div class="body">
+        <div class="platforms">${g.platforms.map(p=>`<span class="tag">${p}</span>`).join("")}</div>
+        <div class="name">${g.name}</div>
+        <div class="date" id="dt-${i}">${g.date==="TBA"?"التاريخ غير محدد بعد":"الإصدار: "+g.date}</div>
+        <div class="cd" data-i="${i}"></div>
+        <div class="actions">
+          <a class="btn primary" href="${gcalLink(g)}" target="_blank" rel="noopener" ${g.date==="TBA"?'style="pointer-events:none;opacity:.4"':''}>📅 تذكير Google</a>
+          <button class="btn" onclick='downloadICS(GAMES[${i}])' ${g.date==="TBA"?'disabled style="opacity:.4"':''}>⤓ ملف تقويم</button>
+        </div>
+      </div>`;
+    grid.appendChild(el);
+  });
+  tick();
+}
+
+function tick(){
+  document.querySelectorAll('.cd').forEach(box=>{
+    const g=GAMES[box.dataset.i];const d=parse(g.date);
+    if(!d){box.innerHTML=`<div class="tba">قريبًا — لم يُعلن الموعد</div>`;return}
+    const diff=d-new Date();
+    if(diff<=0){box.innerHTML=`<div class="released">صدرت اللعبة! 🎮</div>`;return}
+    const day=Math.floor(diff/864e5),hr=Math.floor(diff/36e5)%24,mn=Math.floor(diff/6e4)%60,sc=Math.floor(diff/1e3)%60;
+    box.innerHTML=`<div class="countdown">
+      <div class="unit"><b>${day}</b><small>يوم</small></div>
+      <div class="unit"><b>${pad(hr)}</b><small>ساعة</small></div>
+      <div class="unit"><b>${pad(mn)}</b><small>دقيقة</small></div>
+      <div class="unit"><b>${pad(sc)}</b><small>ثانية</small></div></div>`;
+  });
+}
+
+/* ===== جلب الصور والتواريخ من RAWG ===== */
+async function fetchRAWG(){
+  if(!RAWG_KEY){statusEl.innerHTML="💡 الموقع يعمل بالكامل. أضف مفتاح RAWG لجلب الصور والتواريخ الرسمية تلقائيًا.";return}
+  statusEl.innerHTML="⏳ جاري تحديث البيانات من RAWG...";
+  let ok=0;
+  await Promise.all(GAMES.map(async g=>{
+    try{
+      const r=await fetch(`https://api.rawg.io/api/games/${g.slug}?key=${RAWG_KEY}`);
+      if(!r.ok) return;
+      const j=await r.json();
+      if(j.background_image) g.img=j.background_image;
+      if(j.released && !j.tba) g.date=j.released;
+      else if(j.tba) g.date="TBA";
+      ok++;
+    }catch(e){}
+  }));
+  statusEl.innerHTML=`✅ تم التحديث — <b>${ok}</b> لعبة من RAWG.`;
+  buildCards(document.querySelector('.chip.active').dataset.p);
+}
+
+function saveKey(){
+  const v=document.getElementById('keyInput').value.trim();
+  if(!v){alert("الصق المفتاح أولًا");return}
+  RAWG_KEY=v;localStorage.setItem('rawg_key',v);fetchRAWG();
+}
+
+/* ===== الفلاتر ===== */
+const plats=["all","PS5","Xbox","PC","Switch"];
+const labels={all:"الكل","PS5":"PlayStation","Xbox":"Xbox","PC":"PC","Switch":"Nintendo"};
+plats.forEach((p,i)=>{
+  const c=document.createElement('button');
+  c.className='chip'+(i===0?' active':'');c.dataset.p=p;c.textContent=labels[p];
+  c.onclick=()=>{document.querySelectorAll('.chip').forEach(x=>x.classList.remove('active'));c.classList.add('active');buildCards(p)};
+  filters.appendChild(c);
+});
+
+if(RAWG_KEY) document.getElementById('keyInput').value=RAWG_KEY;
+buildCards("all");
+setInterval(tick,1000);
+fetchRAWG();
+</script>
+</body>
+</html>
