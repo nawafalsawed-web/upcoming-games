@@ -4,7 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Game Radar — الألعاب القادمة</title>
-<meta name="description" content="تتبّع الألعاب القادمة: الأكثر ترقّبًا، المعلَنة بدون تاريخ، وتقويم شهري كامل.">
+<meta name="description" content="تتبّع الألعاب القادمة: الأكثر ترقّبًا، المعلَنة بدون تاريخ, وتقويم شهري كامل.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <style>
   :root{
     --bg:#0b0f17;--bg2:#121826;--card:#161d2e;--accent:#7c5cff;--accent2:#19c37d;
@@ -12,37 +15,45 @@
   }
   *{box-sizing:border-box;margin:0;padding:0}
   body{
-    font-family:"Segoe UI","Tahoma",system-ui,sans-serif;
+    font-family:"Cairo","Segoe UI","Tahoma",system-ui,sans-serif;
     background:radial-gradient(1200px 600px at 80% -10%,#1b2440 0,transparent 60%),
                radial-gradient(900px 500px at 0% 0%,#241a3d 0,transparent 55%),var(--bg);
     color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased;
   }
-  header{text-align:center;padding:36px 20px 6px}
-  .logo{display:inline-flex;align-items:center;gap:10px;font-size:13px;color:var(--muted);letter-spacing:2px;margin-bottom:10px;text-transform:uppercase}
-  .dot{width:9px;height:9px;border-radius:50%;background:var(--accent2);box-shadow:0 0 12px var(--accent2);animation:pulse 1.6s infinite}
+  /* هيدر فيه رادار متحرّك */
+  header{position:relative;text-align:center;padding:54px 20px 26px;overflow:hidden}
+  .radar{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:520px;height:520px;border-radius:50%;pointer-events:none;opacity:.5;
+    background:repeating-radial-gradient(circle at center,transparent 0 38px,rgba(124,92,255,.07) 39px 40px)}
+  .radar::before{content:"";position:absolute;inset:0;border-radius:50%;background:conic-gradient(from 0deg,transparent 0 300deg,rgba(124,92,255,.35) 350deg,rgba(124,92,255,.6) 360deg);animation:sweep 4s linear infinite}
+  .radar::after{content:"";position:absolute;inset:0;border-radius:50%;box-shadow:0 0 0 1px rgba(124,92,255,.15) inset}
+  @keyframes sweep{to{transform:rotate(360deg)}}
+  header>*{position:relative;z-index:1}
+  .logo{display:inline-flex;align-items:center;gap:9px;font-size:12px;color:var(--muted);letter-spacing:3px;margin-bottom:14px;text-transform:uppercase;padding:6px 14px;border:1px solid var(--line);border-radius:999px;background:rgba(22,29,46,.6);backdrop-filter:blur(6px)}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--accent2);box-shadow:0 0 12px var(--accent2);animation:pulse 1.6s infinite}
   @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
-  h1{font-size:clamp(26px,5vw,40px);font-weight:800;line-height:1.15;margin-bottom:6px}
-  h1 span{background:linear-gradient(90deg,var(--accent),#c9a4ff);-webkit-background-clip:text;background-clip:text;color:transparent}
-  .sub{color:var(--muted);font-size:15px}
+  h1{font-size:clamp(30px,6vw,52px);font-weight:900;line-height:1.1;margin-bottom:10px;letter-spacing:-.5px}
+  h1 span{background:linear-gradient(90deg,var(--accent),#c9a4ff 60%,var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .sub{color:var(--muted);font-size:15.5px;max-width:480px;margin:0 auto}
   .wrap{max-width:1100px;margin:0 auto;padding:18px 20px 60px}
 
   /* التبويبات */
   .tabs{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin:18px 0 8px}
-  .tab{background:var(--card);border:1px solid var(--line);color:var(--muted);padding:11px 20px;border-radius:999px;cursor:pointer;font-size:15px;font-family:inherit;font-weight:700;transition:.2s;display:flex;align-items:center;gap:7px}
-  .tab:hover{color:var(--text);border-color:var(--accent)}
-  .tab.active{background:var(--accent);color:#fff;border-color:var(--accent)}
-  .tab .count{background:rgba(0,0,0,.25);border-radius:999px;font-size:11px;padding:1px 8px}
+  .tab{background:rgba(22,29,46,.7);border:1px solid var(--line);color:var(--muted);padding:11px 20px;border-radius:999px;cursor:pointer;font-size:15px;font-family:inherit;font-weight:700;transition:.25s;display:flex;align-items:center;gap:7px;backdrop-filter:blur(6px)}
+  .tab:hover{color:var(--text);border-color:var(--accent);transform:translateY(-1px)}
+  .tab.active{background:linear-gradient(135deg,var(--accent),#9a7bff);color:#fff;border-color:transparent;box-shadow:0 8px 24px -6px var(--accent)}
+  .tab .count{background:rgba(0,0,0,.28);border-radius:999px;font-size:11px;padding:1px 8px}
   .view{display:none}
-  .view.active{display:block}
+  .view.active{display:block;animation:fade .35s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
   .status{text-align:center;color:var(--muted);font-size:13px;min-height:18px;padding:8px}
   .status b{color:var(--accent2)}
   .sectionhint{text-align:center;color:var(--muted);font-size:13px;margin:4px 0 18px}
 
   /* بطاقات الألعاب الكبيرة */
   .grid-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px}
-  .fcard{background:linear-gradient(180deg,var(--card),var(--bg2));border:1px solid var(--line);border-radius:16px;overflow:hidden;transition:.2s}
-  .fcard:hover{transform:translateY(-3px);border-color:var(--accent)}
-  .fcover{height:120px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;background-size:cover;background-position:center;position:relative;text-align:center;padding:0 12px}
+  .fcard{background:linear-gradient(180deg,var(--card),var(--bg2));border:1px solid var(--line);border-radius:16px;overflow:hidden;transition:.25s;position:relative}
+  .fcard:hover{transform:translateY(-5px);border-color:var(--accent);box-shadow:0 22px 44px -14px rgba(0,0,0,.6),0 0 0 1px var(--accent)}
+  .fcover{height:150px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;background-size:cover;background-position:center;position:relative;text-align:center;padding:0 12px}
   .fcover::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 25%,rgba(11,15,23,.75))}
   .fcover span{position:relative;z-index:1;text-shadow:0 2px 12px #000}
   .fbody{padding:13px}
@@ -69,7 +80,8 @@
   .weekhead{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:6px}
   .weekhead div{text-align:center;color:var(--muted);font-size:13px;font-weight:700;padding:6px 0}
   .calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
-  .cell{background:var(--card);border:1px solid var(--line);border-radius:12px;min-height:100px;padding:6px;display:flex;flex-direction:column;gap:4px;overflow:hidden}
+  .cell{background:var(--card);border:1px solid var(--line);border-radius:12px;min-height:100px;padding:6px;display:flex;flex-direction:column;gap:4px;overflow:hidden;transition:.18s}
+  .cell:not(.empty):hover{border-color:var(--accent);background:#1a2236}
   .cell.empty{background:transparent;border:0}
   .cell.today{outline:2px solid var(--accent);background:var(--today)}
   .cell .num{font-size:13px;color:var(--muted);font-weight:700}
@@ -120,6 +132,7 @@
 </head>
 <body>
   <header>
+    <div class="radar"></div>
     <div class="logo"><span class="dot"></span> GAME RADAR</div>
     <h1>الألعاب <span>القادمة</span></h1>
     <p class="sub">الأكثر ترقّبًا، المعلَنة بدون تاريخ، وتقويم شهري كامل.</p>
