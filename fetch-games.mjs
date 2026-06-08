@@ -80,6 +80,7 @@ for (let i = 0; i < selected.length; i += CONC) {
   const res = await Promise.all(batch.map(async c => {
     const d = await details(c.appid);
     if (!d || d.type !== "game" || !d.header_image) return null; // يحذف الإضافات/التجارب وأي شي بدون صورة
+    if (d.release_date && d.release_date.coming_soon !== true) return null; // يحذف الألعاب اللي صدرت فعلًا
     const plats = [];
     if (d.platforms?.windows) plats.push("PC");
     if (d.platforms?.mac) plats.push("Mac");
