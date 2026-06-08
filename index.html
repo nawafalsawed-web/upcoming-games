@@ -168,35 +168,12 @@
     <div class="modal" id="modal"></div>
   </div>
 
-  <footer>المواعيد المؤكدة منسّقة يدويًا · التقويم يُحدّث تلقائيًا من Wikidata + Steam · Game Radar 🎮</footer>
+  <footer>البيانات من IGDB · يُحدّث تلقائيًا يوميًا · Game Radar 🎮</footer>
 
 <script>
-/* ====== الأكثر ترقّبًا (مواعيد مؤكدة) ====== */
-const FEATURED=[
-  { name:"Grand Theft Auto VI", date:"2026-11-19", platforms:["PS5","Xbox Series"], color:["#ff7eb3","#7c5cff"], img:"https://cdn.mobygames.com/covers/20356957-grand-theft-auto-vi-xbox-series-front-cover.png" },
-  { name:"Marvel's Wolverine", date:"2026-09-15", platforms:["PS5"], color:["#cb2d3e","#ef473a"], img:"https://cdn.mobygames.com/promos/35706169-marvels-wolverine-screenshot.jpg" },
-  { name:"Call of Duty: Modern Warfare 4", date:"2026-10-22", platforms:["PS5","Xbox Series","PC"], color:["#283e51","#4b79a1"], img:"https://cdn.mobygames.com/covers/35401403-call-of-duty-modern-warfare-4-windows-front-cover.jpg" },
-  { name:"Dune: Awakening (كونسول)", date:"2026-09-22", platforms:["PS5","Xbox Series"], color:["#c79081","#b5651d"], img:"https://cdn.mobygames.com/covers/20215190-dune-awakening-windows-front-cover.jpg" },
-  { name:"Control: Resonant", date:"2026-09-24", platforms:["PC","PS5","Xbox Series"], color:["#283c86","#45a247"] },
-  { name:"The Blood of Dawnwalker", date:"2026-09-02", platforms:["PC","PS5","Xbox Series"], color:["#5a0000","#1f1c18"] },
-  { name:"Metal Gear Solid: Master Collection Vol. 2", date:"2026-08-27", platforms:["PC","PS5","Xbox Series","Switch 2"], color:["#414345","#232526"] },
-  { name:"Digimon Story: Time Stranger", date:"2026-07-10", platforms:["Switch 2","PS5","PC"], color:["#0082c8","#667db6"] },
-  { name:"Tomb Raider: Legacy of Atlantis", date:"2027-02-12", platforms:["PS5","Xbox Series","PC"], color:["#16222a","#3a6073"], img:"https://cdn.mobygames.com/covers/35700889-tomb-raider-legacy-of-atlantis-xbox-series-front-cover.jpg" },
-  { name:"Fable", date:"2027-02-23", platforms:["Xbox Series","PC"], color:["#11998e","#38ef7d"] },
-];
-
-/* ====== معلَنة بدون تاريخ ====== */
-const ANNOUNCED=[
-  { name:"Resident Evil: Veronica (ريميك Code: Veronica)", window:"2027", platforms:["PS5","Xbox Series","Switch 2","PC"], color:["#8e0e00","#1f1c18"] },
-  { name:"The Elder Scrolls VI", window:"لم يُعلن التاريخ بعد", platforms:["Xbox Series","PC"], color:["#3a7bd5","#00d2ff"] },
-  { name:"The Witcher IV", window:"لا قبل 2027", platforms:["PS5","Xbox Series","PC"], color:["#7b4397","#dc2430"] },
-  { name:"Spyro: A Realm Beyond", window:"أوائل 2027", platforms:["PS5","Xbox Series","Switch 2","PC"], color:["#f7971e","#ffd200"] },
-  { name:"Clockwork Revolution", window:"2027", platforms:["Xbox Series","PC"], color:["#b06ab3","#4568dc"] },
-  { name:"State of Decay 3", window:"2027", platforms:["Xbox Series","PC","PS5"], color:["#434343","#1c1c1c"] },
-  { name:"Metro 2039", window:"فبراير 2027", platforms:["PS5","Xbox Series","PC"], color:["#232526","#414345"] },
-  { name:"Atomic Heart 2", window:"غير محدد", platforms:["PS5","Xbox Series","PC"], color:["#cb356b","#bd3f32"] },
-  { name:"Arma 4", window:"2027", platforms:["PC","Xbox Series"], color:["#3e5151","#decba4"] },
-];
+/* تُملأ تلقائيًا من games.json (IGDB) */
+let FEATURED=[];   // الأكثر ترقّبًا (أعلى hypes، بتواريخ)
+let ANNOUNCED=[];  // بدون تاريخ محدد
 
 const WEEKDAYS=["الأحد","الإثنين","الثلاثاء","الأربعاء","الخميس","الجمعة","السبت"];
 const MONTHS=["يناير","فبراير","مارس","أبريل","مايو","يونيو","يوليو","أغسطس","سبتمبر","أكتوبر","نوفمبر","ديسمبر"];
@@ -236,7 +213,8 @@ function downloadICS(g){
 
 /* ===== بطاقات الأقسام ===== */
 function bigCard(g,i,dated){
-  const cover=g.img?`background-image:url('${g.img}')`:`background:linear-gradient(135deg,${g.color[0]},${g.color[1]})`;
+  const col=g.color||["#7c5cff","#19c37d"];
+  const cover=g.img?`background-image:url('${g.img}')`:`background:linear-gradient(135deg,${col[0]},${col[1]})`;
   const head=g.img?"":`<span>${g.name}</span>`;
   let mid;
   if(dated){
@@ -340,10 +318,13 @@ async function loadData(){
   statusEl.innerHTML="⏳ جاري التحميل...";
   try{
     const r=await fetch('games.json?t='+Date.now());
-    if(r.ok){const j=await r.json();GAMES=j.games||[];indexGames();
+    if(r.ok){const j=await r.json();
+      GAMES=j.games||[];indexGames();
+      FEATURED=[...GAMES].sort((a,b)=>(b.hypes||0)-(a.hypes||0)).slice(0,15);
+      ANNOUNCED=j.announced||[];
       document.getElementById('c-calendar').textContent=GAMES.length;
       statusEl.innerHTML=`✅ <b>${GAMES.length}</b> لعبة في التقويم · آخر تحديث: ${j.updated?new Date(j.updated).toLocaleDateString('ar'):''}`;
-      renderCalendar();return;}
+      renderSections();renderCalendar();return;}
   }catch(e){}
   statusEl.innerHTML="⚠️ تعذّر تحميل بيانات التقويم.";
 }
