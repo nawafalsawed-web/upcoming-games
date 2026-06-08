@@ -12,6 +12,8 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
 const todayStr = new Date().toISOString().slice(0, 10);
 const PER_MONTH = 16; // سقف لكل شهر (توزيع متوازن بدل إغراق شهر واحد)
 const SKIP = /\b(demo|playtest|soundtrack|ost|beta|prologue|server test)\b/i;
+// ألعاب صادرة فعلًا على منصات ثانية لكن "قادمة على ستيم" — نمنعها يدويًا
+const BLOCKLIST = ["zenless zone zero", "33 immortals", "marvel rivals", "the first descendant", "wuthering waves"];
 
 function parseDate(t) {
   t = (t || "").trim();
@@ -43,6 +45,7 @@ for (let p = 0; p < 18; p++) {
     const name = decode((r.match(/<span class="title">([^<]+)<\/span>/) || [])[1]);
     const date = parseDate((r.match(/search_released[^>]*>([^<]*)</) || [])[1]);
     if (!appid || !name || seen.has(appid) || SKIP.test(name)) continue;
+    if (BLOCKLIST.some(b => name.toLowerCase().includes(b))) continue;
     if (!date || date < todayStr) continue;
     seen.add(appid);
     candidates.push({ appid, name, date });
@@ -80,7 +83,9 @@ for (let i = 0; i < selected.length; i += CONC) {
   const res = await Promise.all(batch.map(async c => {
     const d = await details(c.appid);
     if (!d || d.type !== "game" || !d.header_image) return null; // يحذف الإضافات/التجارب وأي شي بدون صورة
-    if (d.release_date && d.release_date.coming_soon !== true) return null; // يحذف الألعاب اللي صدرت فعلًا
+    if (d.release_date && d.release_date.coming_soon !== true) return null; // يحذف الألعاب اللي صدرت على ستيم
+    if (d.metacritic) return null;        // عندها تقييم = صدرت فعلًا على منصة ثانية
+    if (d.recommendations) return null;   // عندها مراجعات = صدرت فعلًا
     const plats = [];
     if (d.platforms?.windows) plats.push("PC");
     if (d.platforms?.mac) plats.push("Mac");
