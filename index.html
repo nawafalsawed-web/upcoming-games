@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Game Radar — تقويم الألعاب القادمة</title>
-<meta name="description" content="تقويم شهري لكل الألعاب القادمة، مع المواعيد والصور الرسمية.">
+<title>Game Radar — الألعاب القادمة</title>
+<meta name="description" content="تتبّع الألعاب القادمة: الأكثر ترقّبًا، المعلَنة بدون تاريخ، وتقويم شهري كامل.">
 <style>
   :root{
     --bg:#0b0f17;--bg2:#121826;--card:#161d2e;--accent:#7c5cff;--accent2:#19c37d;
@@ -17,377 +17,248 @@
                radial-gradient(900px 500px at 0% 0%,#241a3d 0,transparent 55%),var(--bg);
     color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased;
   }
-  header{text-align:center;padding:40px 20px 10px}
-  .logo{display:inline-flex;align-items:center;gap:10px;font-size:13px;color:var(--muted);letter-spacing:2px;margin-bottom:12px;text-transform:uppercase}
+  header{text-align:center;padding:36px 20px 6px}
+  .logo{display:inline-flex;align-items:center;gap:10px;font-size:13px;color:var(--muted);letter-spacing:2px;margin-bottom:10px;text-transform:uppercase}
   .dot{width:9px;height:9px;border-radius:50%;background:var(--accent2);box-shadow:0 0 12px var(--accent2);animation:pulse 1.6s infinite}
   @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
-  h1{font-size:clamp(26px,5vw,42px);font-weight:800;line-height:1.15;margin-bottom:8px}
+  h1{font-size:clamp(26px,5vw,40px);font-weight:800;line-height:1.15;margin-bottom:6px}
   h1 span{background:linear-gradient(90deg,var(--accent),#c9a4ff);-webkit-background-clip:text;background-clip:text;color:transparent}
   .sub{color:var(--muted);font-size:15px}
+  .wrap{max-width:1100px;margin:0 auto;padding:18px 20px 60px}
 
-  .wrap{max-width:1100px;margin:0 auto;padding:20px}
-  .navbar{display:flex;align-items:center;justify-content:center;gap:18px;margin:14px 0 8px}
-  .navbar button{background:var(--card);border:1px solid var(--line);color:var(--text);width:44px;height:44px;border-radius:12px;cursor:pointer;font-size:20px;transition:.2s}
-  .navbar button:hover{border-color:var(--accent);background:#1c2640}
-  .navbar .month{font-size:22px;font-weight:800;min-width:200px;text-align:center}
+  /* التبويبات */
+  .tabs{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin:18px 0 8px}
+  .tab{background:var(--card);border:1px solid var(--line);color:var(--muted);padding:11px 20px;border-radius:999px;cursor:pointer;font-size:15px;font-family:inherit;font-weight:700;transition:.2s;display:flex;align-items:center;gap:7px}
+  .tab:hover{color:var(--text);border-color:var(--accent)}
+  .tab.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .tab .count{background:rgba(0,0,0,.25);border-radius:999px;font-size:11px;padding:1px 8px}
+  .view{display:none}
+  .view.active{display:block}
+  .status{text-align:center;color:var(--muted);font-size:13px;min-height:18px;padding:8px}
+  .status b{color:var(--accent2)}
+  .sectionhint{text-align:center;color:var(--muted);font-size:13px;margin:4px 0 18px}
+
+  /* بطاقات الألعاب الكبيرة */
+  .grid-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px}
+  .fcard{background:linear-gradient(180deg,var(--card),var(--bg2));border:1px solid var(--line);border-radius:16px;overflow:hidden;transition:.2s}
+  .fcard:hover{transform:translateY(-3px);border-color:var(--accent)}
+  .fcover{height:120px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;background-size:cover;background-position:center;position:relative;text-align:center;padding:0 12px}
+  .fcover::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 25%,rgba(11,15,23,.75))}
+  .fcover span{position:relative;z-index:1;text-shadow:0 2px 12px #000}
+  .fbody{padding:13px}
+  .fbody .fn{font-size:15px;font-weight:700;margin-bottom:7px;line-height:1.3}
+  .fbody .fw{font-size:13px;color:var(--accent2);font-weight:700;margin-bottom:9px}
+  .fcd{display:flex;gap:4px;text-align:center;margin-bottom:9px}
+  .fcd .u{flex:1;background:#0d1320;border:1px solid var(--line);border-radius:7px;padding:6px 2px}
+  .fcd .u b{display:block;font-size:16px;font-weight:800}
+  .fcd .u small{font-size:9px;color:var(--muted)}
+  .fdate{font-size:12px;color:var(--muted);margin-bottom:9px}
+  .fplat{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:9px}
+  .tag{font-size:11px;background:#0e1422;border:1px solid var(--line);color:var(--muted);padding:3px 9px;border-radius:6px}
+  .btn{display:block;border:1px solid var(--accent);background:var(--accent);color:#fff;padding:8px;border-radius:9px;cursor:pointer;font-size:12px;font-family:inherit;text-decoration:none;text-align:center;transition:.2s}
+  .btn:hover{filter:brightness(1.1)}
+
+  /* التقويم */
+  .navbar{display:flex;align-items:center;justify-content:center;gap:18px;margin:6px 0 8px}
+  .navbar button{background:var(--card);border:1px solid var(--line);color:var(--text);width:42px;height:42px;border-radius:12px;cursor:pointer;font-size:19px;transition:.2s}
+  .navbar button:hover{border-color:var(--accent)}
+  .navbar .month{font-size:21px;font-weight:800;min-width:190px;text-align:center}
   .toprow{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-bottom:6px}
   .chip{background:var(--card);border:1px solid var(--line);color:var(--muted);padding:7px 14px;border-radius:999px;cursor:pointer;font-size:13px;font-family:inherit;transition:.2s}
   .chip:hover{color:var(--text);border-color:var(--accent)}
-  .status{text-align:center;color:var(--muted);font-size:13px;min-height:20px;padding:6px}
-  .status b{color:var(--accent2)}
-
   .weekhead{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:6px}
   .weekhead div{text-align:center;color:var(--muted);font-size:13px;font-weight:700;padding:6px 0}
   .calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
-  .cell{background:var(--card);border:1px solid var(--line);border-radius:12px;min-height:104px;padding:6px;display:flex;flex-direction:column;gap:4px;overflow:hidden}
+  .cell{background:var(--card);border:1px solid var(--line);border-radius:12px;min-height:100px;padding:6px;display:flex;flex-direction:column;gap:4px;overflow:hidden}
   .cell.empty{background:transparent;border:0}
   .cell.today{outline:2px solid var(--accent);background:var(--today)}
-  .cell .num{font-size:13px;color:var(--muted);font-weight:700;text-align:start}
-  .cell.today .num{color:var(--accent);}
-  .ev{display:flex;align-items:center;gap:6px;background:#0e1422;border:1px solid var(--line);border-radius:8px;padding:3px 5px;cursor:pointer;transition:.15s}
-  .ev:hover{border-color:var(--accent);background:#141c30}
+  .cell .num{font-size:13px;color:var(--muted);font-weight:700}
+  .cell.today .num{color:var(--accent)}
+  .ev{display:flex;align-items:center;gap:6px;background:#0e1422;border:1px solid var(--line);border-radius:8px;padding:3px 5px;cursor:pointer}
+  .ev:hover{border-color:var(--accent)}
   .ev img{width:22px;height:22px;border-radius:5px;object-fit:cover;flex-shrink:0;background:#222}
   .ev span{font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .more{font-size:11px;color:var(--accent);cursor:pointer;text-align:center;padding:2px}
-
-  /* عرض القائمة */
-  .listview{display:none;flex-direction:column;gap:10px}
+  .more{font-size:11px;color:var(--accent);text-align:center}
+  .listview{display:flex;flex-direction:column;gap:10px}
   .litem{display:flex;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;cursor:pointer;transition:.2s}
   .litem:hover{border-color:var(--accent)}
-  .litem img{width:74px;height:74px;border-radius:10px;object-fit:cover;background:#222;flex-shrink:0}
-  .litem .info{flex:1;min-width:0}
-  .litem .nm{font-size:17px;font-weight:700;margin-bottom:3px}
-  .litem .dt{color:var(--muted);font-size:13px;margin-bottom:6px}
-  .litem .cd{color:var(--accent2);font-size:13px;font-weight:700}
+  .litem img{width:90px;height:48px;border-radius:8px;object-fit:cover;background:#222;flex-shrink:0}
+  .litem .nm{font-size:16px;font-weight:700;margin-bottom:3px}
+  .litem .dt{color:var(--muted);font-size:13px}
+  .litem .cd{color:var(--accent2);font-size:13px;font-weight:700;margin-top:3px}
 
-  /* نافذة التفاصيل */
+  /* النوافذ */
   .overlay{position:fixed;inset:0;background:rgba(5,8,14,.8);display:none;align-items:center;justify-content:center;z-index:50;padding:20px;backdrop-filter:blur(4px)}
   .overlay.show{display:flex}
   .modal{background:linear-gradient(180deg,var(--card),var(--bg2));border:1px solid var(--line);border-radius:18px;max-width:440px;width:100%;overflow:hidden}
   .modal.wide{max-width:680px}
+  .modal .hero{height:185px;background-size:cover;background-position:center;position:relative}
+  .modal .hero::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 40%,var(--card))}
+  .modal .mb{padding:18px}
+  .modal h3{font-size:22px;margin-bottom:6px}
+  .modal .md{color:var(--muted);font-size:14px;margin-bottom:10px}
+  .modal .tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+  .cdbig{display:flex;gap:8px;text-align:center;margin-bottom:14px}
+  .cdbig .u{flex:1;background:#0d1320;border:1px solid var(--line);border-radius:10px;padding:8px 4px}
+  .cdbig .u b{display:block;font-size:21px;font-weight:800}
+  .cdbig .u small{color:var(--muted);font-size:11px}
+  .acts{display:flex;gap:8px}
+  .acts .btn{flex:1}
+  .acts .btn.sec{background:#0e1422;color:var(--text);border-color:var(--line)}
+  .closex{position:absolute;top:10px;inset-inline-end:12px;z-index:2;background:rgba(0,0,0,.5);border:0;color:#fff;width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:18px}
   .dayhead{display:flex;justify-content:space-between;align-items:center;padding:16px 18px;border-bottom:1px solid var(--line)}
-  .dayhead h3{font-size:20px}
-  .dayhead small{color:var(--muted);font-size:13px;font-weight:400;margin-inline-start:8px}
+  .dayhead h3{font-size:20px}.dayhead small{color:var(--muted);font-size:13px;font-weight:400;margin-inline-start:8px}
   .daygrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:16px;max-height:68vh;overflow:auto}
   .dcard{background:#0e1422;border:1px solid var(--line);border-radius:12px;overflow:hidden;cursor:pointer;transition:.15s}
   .dcard:hover{border-color:var(--accent);transform:translateY(-2px)}
   .dimg{width:100%;aspect-ratio:460/215;background-size:cover;background-position:center;background-color:#1a2130}
   .dcard .dn{font-size:13px;font-weight:700;padding:9px 9px 3px;line-height:1.35}
   .dcard .dp{font-size:11px;color:var(--muted);padding:0 9px 10px}
-  @media(max-width:480px){.daygrid{grid-template-columns:1fr 1fr;gap:8px;padding:10px}.dcard .dn{font-size:11px}}
-  .modal .hero{height:190px;background-size:cover;background-position:center;position:relative}
-  .modal .hero::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 40%,var(--card))}
-  .modal .mb{padding:18px}
-  .modal h3{font-size:22px;margin-bottom:6px}
-  .modal .md{color:var(--muted);font-size:14px;margin-bottom:10px}
-  .modal .tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
-  .tag{font-size:11px;background:#0e1422;border:1px solid var(--line);color:var(--muted);padding:3px 9px;border-radius:6px}
-  .modal .cdbig{display:flex;gap:8px;text-align:center;margin-bottom:14px}
-  .unit{flex:1;background:#0d1320;border:1px solid var(--line);border-radius:10px;padding:8px 4px}
-  .unit b{display:block;font-size:21px;font-weight:800}
-  .unit small{color:var(--muted);font-size:11px}
-  .acts{display:flex;gap:8px}
-  .btn{flex:1;border:1px solid var(--line);background:#0e1422;color:var(--text);padding:10px;border-radius:10px;cursor:pointer;font-size:13px;font-family:inherit;text-decoration:none;text-align:center;transition:.2s}
-  .btn:hover{border-color:var(--accent)}
-  .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
-  .closex{position:absolute;top:10px;inset-inline-end:12px;z-index:2;background:rgba(0,0,0,.5);border:0;color:#fff;width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:18px}
-
-  .keybox{max-width:600px;margin:14px auto 0;background:var(--card);border:1px dashed var(--line);border-radius:12px;padding:12px 16px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:13px;color:var(--muted);justify-content:center}
-  .keybox input{background:#0d1320;border:1px solid var(--line);color:var(--text);padding:8px 12px;border-radius:8px;font-family:inherit;width:230px}
-  .keybox button{background:var(--accent2);border:0;color:#031a10;font-weight:700;padding:8px 14px;border-radius:8px;cursor:pointer;font-family:inherit}
-  .keybox a{color:var(--accent);text-decoration:none}
-
-  /* قسم الأكثر ترقّبًا */
-  .feat-title{font-size:18px;font-weight:800;margin:6px 0 12px;display:flex;align-items:center;gap:8px}
-  .feat-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px;margin-bottom:26px}
-  .fcard{background:linear-gradient(180deg,var(--card),var(--bg2));border:1px solid var(--line);border-radius:16px;overflow:hidden;transition:.2s}
-  .fcard:hover{transform:translateY(-3px);border-color:var(--accent)}
-  .fcover{height:110px;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:800;background-size:cover;background-position:center;position:relative;text-align:center;padding:0 10px}
-  .fcover::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 30%,rgba(11,15,23,.7))}
-  .fcover span{position:relative;z-index:1;text-shadow:0 2px 12px #000}
-  .fbody{padding:12px}
-  .fbody .fn{font-size:15px;font-weight:700;margin-bottom:6px}
-  .fbody .fw{font-size:12px;color:var(--accent2);font-weight:700;margin-bottom:8px}
-  .fbody .fcd{display:flex;gap:4px;text-align:center;margin-bottom:8px}
-  .fbody .fcd .u{flex:1;background:#0d1320;border:1px solid var(--line);border-radius:7px;padding:5px 2px}
-  .fbody .fcd .u b{display:block;font-size:15px;font-weight:800}
-  .fbody .fcd .u small{font-size:9px;color:var(--muted)}
-  .fplat{display:flex;gap:4px;flex-wrap:wrap}
-  footer{text-align:center;color:var(--muted);font-size:13px;padding:30px 20px 50px}
-  @media(max-width:640px){
-    .cell{min-height:78px}
-    .ev span{display:none}
-    .ev img{width:20px;height:20px}
-  }
+  footer{text-align:center;color:var(--muted);font-size:13px;padding:24px 20px 40px}
+  @media(max-width:600px){.cell{min-height:74px}.ev span{display:none}}
 </style>
 </head>
 <body>
   <header>
     <div class="logo"><span class="dot"></span> GAME RADAR</div>
-    <h1>تقويم <span>الألعاب القادمة</span></h1>
-    <p class="sub">كل الإصدارات القادمة تلقائيًا — في يوم صدورها بالضبط.</p>
+    <h1>الألعاب <span>القادمة</span></h1>
+    <p class="sub">الأكثر ترقّبًا، المعلَنة بدون تاريخ، وتقويم شهري كامل.</p>
   </header>
 
   <div class="wrap">
-    <div id="featured"></div>
-    <div id="announced"></div>
-    <div id="keybar"></div>
-    <div class="navbar">
-      <button onclick="changeMonth(1)">‹</button>
-      <div class="month" id="monthLabel">—</div>
-      <button onclick="changeMonth(-1)">›</button>
+    <div class="tabs" id="tabs">
+      <button class="tab active" data-view="featured">🔥 الأكثر ترقّبًا <span class="count" id="c-featured"></span></button>
+      <button class="tab" data-view="announced">📢 بدون تاريخ <span class="count" id="c-announced"></span></button>
+      <button class="tab" data-view="calendar">📅 التقويم <span class="count" id="c-calendar"></span></button>
     </div>
-    <div class="toprow">
-      <button class="chip" onclick="goToday()">↺ الشهر الحالي</button>
-      <button class="chip" id="viewToggle" onclick="toggleView()">📋 عرض كقائمة</button>
-    </div>
-    <div class="status" id="status"></div>
 
-    <div id="calWrap">
-      <div class="weekhead" id="weekhead"></div>
-      <div class="calendar" id="calendar"></div>
+    <!-- الأكثر ترقّبًا -->
+    <div class="view active" id="view-featured">
+      <div class="sectionhint">ألعاب كبيرة بمواعيد مؤكدة — مع عدّاد تنازلي وتذكير.</div>
+      <div class="grid-cards" id="featuredGrid"></div>
     </div>
-    <div class="listview" id="listview"></div>
+
+    <!-- معلَنة بدون تاريخ -->
+    <div class="view" id="view-announced">
+      <div class="sectionhint">ألعاب أُعلن عنها رسميًا لكن ما تحدّد موعدها بعد.</div>
+      <div class="grid-cards" id="announcedGrid"></div>
+    </div>
+
+    <!-- التقويم -->
+    <div class="view" id="view-calendar">
+      <div class="navbar">
+        <button onclick="changeMonth(1)">‹</button>
+        <div class="month" id="monthLabel">—</div>
+        <button onclick="changeMonth(-1)">›</button>
+      </div>
+      <div class="toprow">
+        <button class="chip" onclick="goToday()">↺ الشهر الحالي</button>
+        <button class="chip" id="viewToggle" onclick="toggleCalView()">📋 عرض كقائمة</button>
+      </div>
+      <div class="status" id="status"></div>
+      <div id="calWrap">
+        <div class="weekhead" id="weekhead"></div>
+        <div class="calendar" id="calendar"></div>
+      </div>
+      <div class="listview" id="listview" style="display:none"></div>
+    </div>
   </div>
 
   <div class="overlay" id="overlay" onclick="if(event.target===this)closeModal()">
     <div class="modal" id="modal"></div>
   </div>
 
-  <footer>البيانات من RAWG.io · يُحدّث تلقائيًا · Game Radar 🎮</footer>
+  <footer>المواعيد المؤكدة منسّقة يدويًا · التقويم يُحدّث تلقائيًا من Steam · Game Radar 🎮</footer>
 
 <script>
-const RAWG_KEY_DEFAULT = "__RAWG_KEY__"; // يُستبدل عند النشر
-let RAWG_KEY = (RAWG_KEY_DEFAULT && !RAWG_KEY_DEFAULT.startsWith("__")) ? RAWG_KEY_DEFAULT : (localStorage.getItem('rawg_key')||"");
-
-/* ====== الألعاب المثبّتة (الأكثر ترقّبًا) ======
-   عدّلها هنا. date فاضي = نعرض النص في window فقط (بدون عدّاد). */
+/* ====== الأكثر ترقّبًا (مواعيد مؤكدة) ====== */
 const FEATURED=[
-  { name:"Grand Theft Auto VI", window:"", date:"2026-11-19", platforms:["PS5","Xbox Series"], color:["#ff7eb3","#7c5cff"], img:"" },
-  { name:"Marvel's Wolverine", window:"", date:"2026-09-15", platforms:["PS5"], color:["#cb2d3e","#ef473a"], img:"" },
-  { name:"Dune: Awakening (كونسول)", window:"", date:"2026-09-22", platforms:["PS5","Xbox Series"], color:["#c79081","#b5651d"], img:"" },
-  { name:"Control: Resonant", window:"", date:"2026-09-24", platforms:["PC","PS5","Xbox Series"], color:["#283c86","#45a247"], img:"" },
-  { name:"Tomb Raider: Legacy of Atlantis", window:"", date:"2027-02-12", platforms:["PS5","Xbox Series","PC"], color:["#16222a","#3a6073"], img:"" },
-  { name:"Fable", window:"", date:"2027-02-23", platforms:["Xbox Series","PC"], color:["#11998e","#38ef7d"], img:"" },
+  { name:"Grand Theft Auto VI", date:"2026-11-19", platforms:["PS5","Xbox Series"], color:["#ff7eb3","#7c5cff"] },
+  { name:"Marvel's Wolverine", date:"2026-09-15", platforms:["PS5"], color:["#cb2d3e","#ef473a"] },
+  { name:"Call of Duty: Modern Warfare 4", date:"2026-10-23", platforms:["PS5","Xbox Series","PC"], color:["#283e51","#4b79a1"] },
+  { name:"Dune: Awakening (كونسول)", date:"2026-09-22", platforms:["PS5","Xbox Series"], color:["#c79081","#b5651d"] },
+  { name:"Control: Resonant", date:"2026-09-24", platforms:["PC","PS5","Xbox Series"], color:["#283c86","#45a247"] },
+  { name:"The Blood of Dawnwalker", date:"2026-09-08", platforms:["PC","PS5","Xbox Series"], color:["#5a0000","#1f1c18"] },
+  { name:"Metal Gear Solid: Master Collection Vol. 2", date:"2026-08-27", platforms:["PC","PS5","Xbox Series","Switch 2"], color:["#414345","#232526"] },
+  { name:"Digimon Story: Time Stranger", date:"2026-07-10", platforms:["Switch 2","PS5","PC"], color:["#0082c8","#667db6"] },
+  { name:"Tomb Raider: Legacy of Atlantis", date:"2027-02-12", platforms:["PS5","Xbox Series","PC"], color:["#16222a","#3a6073"] },
+  { name:"Fable", date:"2027-02-23", platforms:["Xbox Series","PC"], color:["#11998e","#38ef7d"] },
 ];
 
-/* ألعاب معلَنة بدون تاريخ إصدار محدد */
+/* ====== معلَنة بدون تاريخ ====== */
 const ANNOUNCED=[
-  { name:"Resident Evil: Veronica (ريميك Code: Veronica)", window:"2027", platforms:["PS5","Xbox Series","Switch 2","PC"], color:["#8e0e00","#1f1c18"], date:"", img:"" },
-  { name:"The Elder Scrolls VI", window:"لم يُعلن التاريخ بعد", platforms:["Xbox Series","PC"], color:["#3a7bd5","#00d2ff"], date:"", img:"" },
-  { name:"The Witcher IV", window:"لا قبل 2027", platforms:["PS5","Xbox Series","PC"], color:["#7b4397","#dc2430"], date:"", img:"" },
-  { name:"Spyro: A Realm Beyond", window:"أوائل 2027", platforms:["PS5","Xbox Series","Switch 2","PC"], color:["#f7971e","#ffd200"], date:"", img:"" },
-  { name:"State of Decay 3", window:"2027", platforms:["Xbox Series","PC","PS5"], color:["#434343","#1c1c1c"], date:"", img:"" },
-  { name:"Metro 2039", window:"فبراير 2027", platforms:["PS5","Xbox Series","PC"], color:["#232526","#414345"], date:"", img:"" },
+  { name:"Resident Evil: Veronica (ريميك Code: Veronica)", window:"2027", platforms:["PS5","Xbox Series","Switch 2","PC"], color:["#8e0e00","#1f1c18"] },
+  { name:"The Elder Scrolls VI", window:"لم يُعلن التاريخ بعد", platforms:["Xbox Series","PC"], color:["#3a7bd5","#00d2ff"] },
+  { name:"The Witcher IV", window:"لا قبل 2027", platforms:["PS5","Xbox Series","PC"], color:["#7b4397","#dc2430"] },
+  { name:"Spyro: A Realm Beyond", window:"أوائل 2027", platforms:["PS5","Xbox Series","Switch 2","PC"], color:["#f7971e","#ffd200"] },
+  { name:"Clockwork Revolution", window:"2027", platforms:["Xbox Series","PC"], color:["#b06ab3","#4568dc"] },
+  { name:"State of Decay 3", window:"2027", platforms:["Xbox Series","PC","PS5"], color:["#434343","#1c1c1c"] },
+  { name:"Metro 2039", window:"فبراير 2027", platforms:["PS5","Xbox Series","PC"], color:["#232526","#414345"] },
+  { name:"Atomic Heart 2", window:"غير محدد", platforms:["PS5","Xbox Series","PC"], color:["#cb356b","#bd3f32"] },
+  { name:"Arma 4", window:"2027", platforms:["PC","Xbox Series"], color:["#3e5151","#decba4"] },
 ];
 
 const WEEKDAYS=["الأحد","الإثنين","الثلاثاء","الأربعاء","الخميس","الجمعة","السبت"];
 const MONTHS=["يناير","فبراير","مارس","أبريل","مايو","يونيو","يوليو","أغسطس","سبتمبر","أكتوبر","نوفمبر","ديسمبر"];
 
+let GAMES=[], byDate={}, view=new Date(), listMode=false, timer=null;
+view.setDate(1);
 const statusEl=document.getElementById('status');
-let GAMES=[];                 // كل الألعاب المجلوبة
-let byDate={};                // مفهرسة حسب التاريخ YYYY-MM-DD
-let view=new Date(); view.setDate(1);
-let listMode=false;
+const pad=n=>String(n).padStart(2,'0');
+const iso=d=>d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());
+const parse=s=>new Date(s+"T00:00:00");
+const fmtDate=d=>`${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`;
+const px="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==";
 
-function pad(n){return String(n).padStart(2,'0')}
-function iso(d){return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())}
-function parse(s){return new Date(s+"T00:00:00")}
+/* ===== التبويبات ===== */
+document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));
+  t.classList.add('active');
+  document.getElementById('view-'+t.dataset.view).classList.add('active');
+});
 
-/* ===== جلب كل الألعاب القادمة من RAWG ===== */
-async function fetchGames(){
-  if(!RAWG_KEY){
-    renderKeybar(true);
-    statusEl.innerHTML="🔑 الصق مفتاح RAWG المجاني فوق لجلب الألعاب.";
-    return;
-  }
-  renderKeybar(false);
-  statusEl.innerHTML="⏳ جاري جلب الألعاب القادمة...";
-  const today=new Date();
-  const end=new Date(); end.setMonth(end.getMonth()+18);
-  let url=`https://api.rawg.io/api/games?key=${RAWG_KEY}&dates=${iso(today)},${iso(end)}&ordering=released&page_size=40`;
-  GAMES=[]; let pages=0;
-  try{
-    while(url && pages<10){
-      const r=await fetch(url); if(!r.ok) throw new Error("HTTP "+r.status);
-      const j=await r.json();
-      (j.results||[]).forEach(g=>{
-        if(g.released && g.tba!==true) GAMES.push({
-          name:g.name, date:g.released, img:g.background_image||"",
-          platforms:(g.parent_platforms||[]).map(p=>p.platform.name),
-          genres:(g.genres||[]).map(x=>x.name),
-          rating:g.rating, slug:g.slug
-        });
-      });
-      url=j.next; pages++;
-      statusEl.innerHTML=`⏳ جلب... <b>${GAMES.length}</b> لعبة`;
-    }
-    indexGames();
-    statusEl.innerHTML=`✅ <b>${GAMES.length}</b> لعبة قادمة. اضغط أي لعبة للتفاصيل والتذكير.`;
-    render();
-  }catch(e){
-    statusEl.innerHTML="⚠️ خطأ في الجلب: "+e.message+" — تأكد من صحة المفتاح.";
-  }
-}
-function indexGames(){
-  byDate={};
-  GAMES.forEach(g=>{(byDate[g.date]=byDate[g.date]||[]).push(g)});
-}
-
-/* ===== التقويم ===== */
-function render(){
-  document.getElementById('monthLabel').textContent=MONTHS[view.getMonth()]+" "+view.getFullYear();
-  if(listMode){renderList();return}
-  const wh=document.getElementById('weekhead'); wh.innerHTML=WEEKDAYS.map(d=>`<div>${d}</div>`).join("");
-  const cal=document.getElementById('calendar'); cal.innerHTML="";
-  const first=new Date(view.getFullYear(),view.getMonth(),1);
-  const startDay=first.getDay();
-  const daysInMonth=new Date(view.getFullYear(),view.getMonth()+1,0).getDate();
-  const todayIso=iso(new Date());
-  for(let i=0;i<startDay;i++) cal.insertAdjacentHTML('beforeend','<div class="cell empty"></div>');
-  for(let d=1;d<=daysInMonth;d++){
-    const dateStr=view.getFullYear()+"-"+pad(view.getMonth()+1)+"-"+pad(d);
-    const games=byDate[dateStr]||[];
-    const isToday=dateStr===todayIso;
-    let evs=games.slice(0,3).map(g=>`<div class="ev" onclick='event.stopPropagation();openModal(${JSON.stringify(g).replace(/'/g,"&#39;")})'>
-        <img src="${g.img||transparentPx()}" alt="" onerror="this.style.visibility='hidden'"><span>${g.name}</span></div>`).join("");
-    if(games.length>3) evs+=`<div class="more">+${games.length-3} أخرى</div>`;
-    const click=games.length?`onclick='openDay("${dateStr}")' style="cursor:pointer"`:'';
-    cal.insertAdjacentHTML('beforeend',
-      `<div class="cell ${isToday?'today':''}" ${click}><div class="num">${d}</div>${evs}</div>`);
-  }
-}
-function transparentPx(){return "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="}
-
-function renderList(){
-  const lv=document.getElementById('listview');
-  const m=view.getMonth(),y=view.getFullYear();
-  const games=GAMES.filter(g=>{const d=parse(g.date);return d.getMonth()===m&&d.getFullYear()===y})
-                   .sort((a,b)=>a.date.localeCompare(b.date));
-  if(!games.length){lv.innerHTML=`<div class="status">لا توجد إصدارات في هذا الشهر.</div>`;return}
-  lv.innerHTML=games.map(g=>{
-    const diff=parse(g.date)-new Date();
-    const days=Math.ceil(diff/864e5);
-    const cd=days<=0?"صدرت 🎮":`باقي ${days} يوم`;
-    return `<div class="litem" onclick='openModal(${JSON.stringify(g).replace(/'/g,"&#39;")})'>
-      <img src="${g.img||transparentPx()}" onerror="this.style.visibility='hidden'">
-      <div class="info"><div class="nm">${g.name}</div>
-        <div class="dt">${MONTHS[parse(g.date).getMonth()]} ${parse(g.date).getDate()}, ${parse(g.date).getFullYear()}</div>
-        <div class="cd">${cd}</div></div></div>`;
-  }).join("");
-}
-
-/* ===== التنقل ===== */
-function changeMonth(dir){view.setMonth(view.getMonth()+dir);render()}
-function goToday(){view=new Date();view.setDate(1);render()}
-function toggleView(){
-  listMode=!listMode;
-  document.getElementById('calWrap').style.display=listMode?'none':'block';
-  document.getElementById('listview').style.display=listMode?'flex':'none';
-  document.getElementById('viewToggle').textContent=listMode?'🗓 عرض كتقويم':'📋 عرض كقائمة';
-  render();
-}
-
-/* ===== نافذة اللعبة ===== */
-let timer=null;
-function openModal(g){
-  const d=parse(g.date);
-  const m=document.getElementById('modal');
-  m.classList.remove('wide');
-  m.innerHTML=`
-    <div class="hero" style="background-image:url('${g.img}')"><button class="closex" onclick="closeModal()">×</button></div>
-    <div class="mb">
-      <h3>${g.name}</h3>
-      <div class="md">📅 ${MONTHS[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}</div>
-      <div class="tags">${[...g.platforms,...g.genres].slice(0,6).map(t=>`<span class="tag">${t}</span>`).join("")}</div>
-      <div class="cdbig" id="modalCd"></div>
-      <div class="acts">
-        <a class="btn primary" href="${gcal(g)}" target="_blank" rel="noopener">📅 تذكير Google</a>
-        <button class="btn" onclick='downloadICS(${JSON.stringify(g).replace(/'/g,"&#39;")})'>⤓ ملف تقويم</button>
-      </div>
-    </div>`;
-  document.getElementById('overlay').classList.add('show');
-  const upd=()=>{
-    const diff=d-new Date();const cd=document.getElementById('modalCd');if(!cd)return;
-    if(diff<=0){cd.innerHTML='<div class="unit" style="flex:1"><b>🎮 صدرت اللعبة</b></div>';return}
-    const dd=Math.floor(diff/864e5),hh=Math.floor(diff/36e5)%24,mm=Math.floor(diff/6e4)%60,ss=Math.floor(diff/1e3)%60;
-    cd.innerHTML=`<div class="unit"><b>${dd}</b><small>يوم</small></div><div class="unit"><b>${pad(hh)}</b><small>ساعة</small></div><div class="unit"><b>${pad(mm)}</b><small>دقيقة</small></div><div class="unit"><b>${pad(ss)}</b><small>ثانية</small></div>`;
-  };
-  upd(); clearInterval(timer); timer=setInterval(upd,1000);
-}
-function closeModal(){document.getElementById('overlay').classList.remove('show');clearInterval(timer)}
-function openDay(dateStr){
-  const games=byDate[dateStr]||[];if(!games.length)return;
-  const d=parse(dateStr);
-  const m=document.getElementById('modal');
-  m.classList.add('wide');
-  m.innerHTML=`
-    <div class="dayhead">
-      <h3>${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}<small>${games.length} لعبة</small></h3>
-      <button class="closex" style="position:static" onclick="closeModal()">×</button>
-    </div>
-    <div class="daygrid">
-      ${games.map(g=>`<div class="dcard" onclick='openModal(${JSON.stringify(g).replace(/'/g,"&#39;")})'>
-        <div class="dimg" style="background-image:url('${g.img}')"></div>
-        <div class="dn">${g.name}</div>
-        <div class="dp">${g.platforms.slice(0,3).join(' · ')}</div>
-      </div>`).join("")}
-    </div>`;
-  document.getElementById('overlay').classList.add('show');
-}
-
-/* ===== تذكير بالتقويم ===== */
+/* ===== تذكير ===== */
 function gcal(g){
   const d=parse(g.date);
-  const s=iso(d).replace(/-/g,"");
-  const e=iso(new Date(d.getTime()+864e5)).replace(/-/g,"");
-  return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent("إصدار "+g.name)}&dates=${s}/${e}&details=${encodeURIComponent("تذكير بإصدار اللعبة — Game Radar")}`;
+  const s=iso(d).replace(/-/g,""), e=iso(new Date(d.getTime()+864e5)).replace(/-/g,"");
+  return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent("إصدار "+g.name)}&dates=${s}/${e}&details=${encodeURIComponent("تذكير — Game Radar")}`;
 }
 function downloadICS(g){
-  const d=parse(g.date);const dt=iso(d).replace(/-/g,"");
+  const d=parse(g.date), dt=iso(d).replace(/-/g,"");
   const ics=["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//GameRadar//AR//","BEGIN:VEVENT",
     "UID:"+(g.slug||g.name)+"@gameradar","DTSTART;VALUE=DATE:"+dt,"SUMMARY:إصدار "+g.name,
-    "DESCRIPTION:تذكير بإصدار اللعبة — Game Radar","END:VEVENT","END:VCALENDAR"].join("\r\n");
+    "DESCRIPTION:تذكير — Game Radar","END:VEVENT","END:VCALENDAR"].join("\r\n");
   const a=document.createElement('a');
   a.href="data:text/calendar;charset=utf-8,"+encodeURIComponent(ics);
   a.download=g.name.replace(/[^\w]+/g,"_")+".ics";a.click();
 }
 
-/* ===== مفتاح RAWG ===== */
-function renderKeybar(show){
-  document.getElementById('keybar').innerHTML = show ? `
-    <div class="keybox">
-      <span>🔑 الصق مفتاح RAWG المجاني:</span>
-      <input id="keyInput" placeholder="RAWG API key">
-      <button onclick="saveKey()">حفظ</button>
-      <a href="https://rawg.io/apidocs" target="_blank" rel="noopener">احصل عليه ←</a>
-    </div>`:"";
-}
-function saveKey(){
-  const v=document.getElementById('keyInput').value.trim();
-  if(!v){alert("الصق المفتاح أولًا");return}
-  RAWG_KEY=v;localStorage.setItem('rawg_key',v);fetchGames();
-}
-
-/* ===== قسم الأكثر ترقّبًا (مثبّت) ===== */
-function cardHTML(g,i){
-  const cover=g.img?`background-image:url('${g.img}')`:`background:linear-gradient(135deg,${g.color?g.color[0]:'#7c5cff'},${g.color?g.color[1]:'#19c37d'})`;
+/* ===== بطاقات الأقسام ===== */
+function bigCard(g,i,dated){
+  const cover=g.img?`background-image:url('${g.img}')`:`background:linear-gradient(135deg,${g.color[0]},${g.color[1]})`;
   const head=g.img?"":`<span>${g.name}</span>`;
-  const mid=g.date?`<div class="fcd" data-fi="${i}"></div>`:`<div class="fw">⏳ ${g.window||"قريبًا"}</div>`;
-  const act=g.date?`<a class="btn primary" style="font-size:12px;padding:7px" href="${gcal(g)}" target="_blank" rel="noopener">📅 تذكير</a>`:"";
+  let mid;
+  if(dated){
+    const d=parse(g.date);
+    mid=`<div class="fdate">📅 ${fmtDate(d)}</div><div class="fcd" data-fi="${i}"></div>`;
+  } else {
+    mid=`<div class="fw">⏳ ${g.window}</div>`;
+  }
+  const act=dated?`<a class="btn" href="${gcal(g)}" target="_blank" rel="noopener">📅 تذكير</a>`:"";
   return `<div class="fcard"><div class="fcover" style="${cover}">${head}</div>
     <div class="fbody"><div class="fn">${g.name}</div>${mid}
-    <div class="fplat">${g.platforms.map(p=>`<span class="tag">${p}</span>`).join("")}</div>
-    ${act?'<div style="margin-top:8px">'+act+'</div>':''}</div></div>`;
+    <div class="fplat">${g.platforms.map(p=>`<span class="tag">${p}</span>`).join("")}</div>${act}</div></div>`;
 }
-function renderFeatured(){
-  const f=document.getElementById('featured');
-  f.innerHTML=FEATURED.length?`<div class="feat-title">🔥 الأكثر ترقّبًا</div><div class="feat-row">`+FEATURED.map((g,i)=>cardHTML(g,i)).join("")+`</div>`:"";
-  const a=document.getElementById('announced');
-  a.innerHTML=ANNOUNCED.length?`<div class="feat-title">📢 معلَنة — لم يُحدَّد تاريخها بعد</div><div class="feat-row">`+ANNOUNCED.map((g,i)=>cardHTML(g,i)).join("")+`</div>`:"";
-  tickFeatured();
+function renderSections(){
+  const fg=[...FEATURED].sort((a,b)=>a.date.localeCompare(b.date));
+  document.getElementById('featuredGrid').innerHTML=fg.map((g)=>bigCard(g,FEATURED.indexOf(g),true)).join("");
+  document.getElementById('announcedGrid').innerHTML=ANNOUNCED.map((g,i)=>bigCard(g,i,false)).join("");
+  document.getElementById('c-featured').textContent=FEATURED.length;
+  document.getElementById('c-announced').textContent=ANNOUNCED.length;
+  tickBig();
 }
-function tickFeatured(){
+function tickBig(){
   document.querySelectorAll('.fcd').forEach(box=>{
     const g=FEATURED[box.dataset.fi];const d=parse(g.date);const diff=d-new Date();
     if(diff<=0){box.innerHTML='<div class="u" style="flex:1"><b>🎮 صدرت</b></div>';return}
@@ -396,29 +267,90 @@ function tickFeatured(){
   });
 }
 
-/* ===== تحميل البيانات: ملف ثابت أولًا (لحظي)، ثم RAWG مباشر كاحتياطي ===== */
+/* ===== التقويم ===== */
+function indexGames(){byDate={};GAMES.forEach(g=>{(byDate[g.date]=byDate[g.date]||[]).push(g)})}
+function renderCalendar(){
+  document.getElementById('monthLabel').textContent=MONTHS[view.getMonth()]+" "+view.getFullYear();
+  if(listMode){renderList();return}
+  document.getElementById('weekhead').innerHTML=WEEKDAYS.map(d=>`<div>${d}</div>`).join("");
+  const cal=document.getElementById('calendar');cal.innerHTML="";
+  const startDay=new Date(view.getFullYear(),view.getMonth(),1).getDay();
+  const days=new Date(view.getFullYear(),view.getMonth()+1,0).getDate();
+  const todayIso=iso(new Date());
+  for(let i=0;i<startDay;i++)cal.insertAdjacentHTML('beforeend','<div class="cell empty"></div>');
+  for(let d=1;d<=days;d++){
+    const ds=view.getFullYear()+"-"+pad(view.getMonth()+1)+"-"+pad(d);
+    const gs=byDate[ds]||[];
+    let evs=gs.slice(0,3).map(g=>`<div class="ev" onclick='event.stopPropagation();openGame(${JSON.stringify(g).replace(/'/g,"&#39;")})'><img src="${g.img||px}" onerror="this.style.visibility='hidden'"><span>${g.name}</span></div>`).join("");
+    if(gs.length>3)evs+=`<div class="more">+${gs.length-3} أخرى</div>`;
+    const clk=gs.length?`onclick='openDay("${ds}")' style="cursor:pointer"`:'';
+    cal.insertAdjacentHTML('beforeend',`<div class="cell ${ds===todayIso?'today':''}" ${clk}><div class="num">${d}</div>${evs}</div>`);
+  }
+}
+function renderList(){
+  const lv=document.getElementById('listview');
+  const gs=GAMES.filter(g=>{const d=parse(g.date);return d.getMonth()===view.getMonth()&&d.getFullYear()===view.getFullYear()}).sort((a,b)=>a.date.localeCompare(b.date));
+  lv.innerHTML=gs.length?gs.map(g=>{
+    const days=Math.ceil((parse(g.date)-new Date())/864e5);
+    return `<div class="litem" onclick='openGame(${JSON.stringify(g).replace(/'/g,"&#39;")})'>
+      <img src="${g.img||px}" onerror="this.style.visibility='hidden'">
+      <div><div class="nm">${g.name}</div><div class="dt">${fmtDate(parse(g.date))}</div>
+      <div class="cd">${days<=0?"صدرت 🎮":"باقي "+days+" يوم"}</div></div></div>`;
+  }).join(""):`<div class="status">لا توجد إصدارات هذا الشهر.</div>`;
+}
+function changeMonth(dir){view.setMonth(view.getMonth()+dir);renderCalendar()}
+function goToday(){view=new Date();view.setDate(1);renderCalendar()}
+function toggleCalView(){
+  listMode=!listMode;
+  document.getElementById('calWrap').style.display=listMode?'none':'block';
+  document.getElementById('listview').style.display=listMode?'flex':'none';
+  document.getElementById('viewToggle').textContent=listMode?'🗓 عرض كتقويم':'📋 عرض كقائمة';
+  renderCalendar();
+}
+
+/* ===== نافذة لعبة ===== */
+function openGame(g){
+  const d=parse(g.date);const m=document.getElementById('modal');m.classList.remove('wide');
+  m.innerHTML=`<div class="hero" style="background-image:url('${g.img||''}')"><button class="closex" onclick="closeModal()">×</button></div>
+    <div class="mb"><h3>${g.name}</h3><div class="md">📅 ${fmtDate(d)}</div>
+    <div class="tags">${[...(g.platforms||[]),...(g.genres||[])].slice(0,6).map(t=>`<span class="tag">${t}</span>`).join("")}</div>
+    <div class="cdbig" id="modalCd"></div>
+    <div class="acts"><a class="btn" href="${gcal(g)}" target="_blank" rel="noopener">📅 تذكير Google</a>
+    <button class="btn sec" onclick='downloadICS(${JSON.stringify(g).replace(/'/g,"&#39;")})'>⤓ ملف تقويم</button></div></div>`;
+  document.getElementById('overlay').classList.add('show');
+  const upd=()=>{const cd=document.getElementById('modalCd');if(!cd)return;const diff=d-new Date();
+    if(diff<=0){cd.innerHTML='<div class="u" style="flex:1"><b>🎮 صدرت</b></div>';return}
+    const dd=Math.floor(diff/864e5),hh=Math.floor(diff/36e5)%24,mm=Math.floor(diff/6e4)%60,ss=Math.floor(diff/1e3)%60;
+    cd.innerHTML=`<div class="u"><b>${dd}</b><small>يوم</small></div><div class="u"><b>${pad(hh)}</b><small>ساعة</small></div><div class="u"><b>${pad(mm)}</b><small>دقيقة</small></div><div class="u"><b>${pad(ss)}</b><small>ثانية</small></div>`;};
+  upd();clearInterval(timer);timer=setInterval(upd,1000);
+}
+function openDay(ds){
+  const gs=byDate[ds]||[];if(!gs.length)return;const d=parse(ds);const m=document.getElementById('modal');m.classList.add('wide');
+  m.innerHTML=`<div class="dayhead"><h3>${fmtDate(d)}<small>${gs.length} لعبة</small></h3><button class="closex" style="position:static" onclick="closeModal()">×</button></div>
+    <div class="daygrid">${gs.map(g=>`<div class="dcard" onclick='openGame(${JSON.stringify(g).replace(/'/g,"&#39;")})'>
+      <div class="dimg" style="background-image:url('${g.img||''}')"></div>
+      <div class="dn">${g.name}</div><div class="dp">${(g.platforms||[]).slice(0,3).join(' · ')}</div></div>`).join("")}</div>`;
+  document.getElementById('overlay').classList.add('show');
+}
+function closeModal(){document.getElementById('overlay').classList.remove('show');clearInterval(timer)}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
+
+/* ===== تحميل بيانات التقويم ===== */
 async function loadData(){
   statusEl.innerHTML="⏳ جاري التحميل...";
   try{
     const r=await fetch('games.json?t='+Date.now());
-    if(r.ok){
-      const j=await r.json();
-      GAMES=j.games||[];
-      indexGames();
-      const when=j.updated?new Date(j.updated).toLocaleDateString('ar'):'';
-      statusEl.innerHTML=`✅ <b>${GAMES.length}</b> لعبة قادمة · آخر تحديث: ${when} · اضغط أي لعبة للتفاصيل.`;
-      render();
-      return;
-    }
+    if(r.ok){const j=await r.json();GAMES=j.games||[];indexGames();
+      document.getElementById('c-calendar').textContent=GAMES.length;
+      statusEl.innerHTML=`✅ <b>${GAMES.length}</b> لعبة في التقويم · آخر تحديث: ${j.updated?new Date(j.updated).toLocaleDateString('ar'):''}`;
+      renderCalendar();return;}
   }catch(e){}
-  // احتياطي: جلب مباشر من RAWG
-  fetchGames();
+  statusEl.innerHTML="⚠️ تعذّر تحميل بيانات التقويم.";
 }
 
-document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
-renderFeatured();
-setInterval(tickFeatured,1000);
-render();
+renderSections();
+setInterval(tickBig,1000);
+renderCalendar();
 loadData();
 </script>
 </body>
