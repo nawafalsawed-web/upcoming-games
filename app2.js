@@ -91,15 +91,37 @@
     const thisYear = [...upcoming].filter((g) => parse(g.date).getFullYear() === new Date().getFullYear() && daysUntil(g.date) > 30)
       .sort((a, b) => a.date.localeCompare(b.date)).slice(0, 14);
 
+    const runwayList = [...upcoming].sort((a, b) => a.date.localeCompare(b.date)).slice(0, 18);
     const heroHtml = hero ? heroBlock(hero) : "";
     $("#page-discover").innerHTML = `
       ${heroHtml}
+      ${runwayBlock(runwayList)}
       ${rail("🔥", "الأكثر ترقّبًا", mostHyped, true)}
-      ${rail("📅", "يصدر خلال شهر", soon, true)}
       ${rail("🗓️", "قادم هذا العام", thisYear, true)}
       ${rail("📢", "أُعلن بدون تاريخ", announced, true)}
       <footer>البيانات من IGDB · يُحدّث العدّاد لحظيًا · Game Radar</footer>`;
     tick();
+  }
+  // "في الطريق إليك" — خط زمني أفقي: كل ما اللعبة أقرب موعدًا كبرت وتوهّجت
+  function runwayBlock(list) {
+    if (!list.length) return "";
+    const items = list.map((g) => {
+      const du = daysUntil(g.date);
+      const tier = du <= 7 ? "hot" : du <= 30 ? "warm" : "cool";
+      const glyph = g.image ? "" : `<span class="rwy-gl">${esc((g.name[0] || "?").toUpperCase())}</span>`;
+      return `<button class="rwy ${tier}" style="--c1:${g.color[0]};--c2:${g.color[1]}" onclick="GR2.open('${g.slug}')">
+        <div class="rwy-cd">${du <= 0 ? "اليوم" : "<b>" + du + "</b><small>يوم</small>"}</div>
+        <div class="rwy-dot"></div>
+        <div class="rwy-art">${imgTag(g)}${glyph}</div>
+        <div class="rwy-name">${esc(TITLE(g))}</div>
+        <div class="rwy-date">${fmtShort(parse(g.date))}</div>
+      </button>`;
+    }).join("");
+    return `<section class="runway">
+      <div class="rail-head"><h3><span class="ico">🛫</span> في الطريق إليك</h3>
+        <button class="see" onclick="GR2.go('calendar')">التقويم ←</button></div>
+      <div class="runway-track scroll-x"><div class="runway-line"></div>${items}</div>
+    </section>`;
   }
   function heroBlock(g) {
     const wished = isWished(g);
